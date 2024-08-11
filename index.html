@@ -1,167 +1,119 @@
-<html><head><base href="https://example.com/">
+<html><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Batman's Psychedelic Journey with Aura Smileys</title>
+<title>Gotham's Twisted Carnival</title>
 <style>
   body, html {
     margin: 0;
     padding: 0;
     height: 100%;
     overflow: hidden;
-    background-color: #111;
-    font-family: Arial, sans-serif;
+    background-color: transparent;
+    font-family: 'Gotham', sans-serif;
   }
-  #container {
+  #carnivalContainer {
     position: relative;
     width: 100%;
     height: 100%;
+    overflow: hidden;
+  }
+  #batmanFigure {
+    position: absolute;
+    width: 200px;
+    height: 300px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300"><path d="M100 0 L200 100 L150 300 L50 300 L0 100 Z" fill="%23333"/><path d="M75 50 L125 50 L115 75 L85 75 Z" fill="white"/><circle cx="90" cy="40" r="5" fill="red"/><circle cx="110" cy="40" r="5" fill="red"/></svg>') no-repeat center center;
+    background-size: contain;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.8));
   }
   #videoPlayer {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80%;
-    height: 80%;
-    border: 2px solid #fff;
-    box-shadow: 0 0 20px #00ffff;
-    filter: hue-rotate(0deg);
-    transition: filter 2s ease-in-out;
-    opacity: 0.7;
+    width: 320px;
+    height: 180px;
+    border: 5px solid #fff;
+    box-shadow: 
+      0 0 20px #4d79ff,
+      0 0 40px #4d79ff,
+      0 0 60px #4d79ff,
+      0 0 80px #4d79ff;
+    opacity: 0.8;
+    transition: all 0.5s ease;
+    animation: videoGlow 3s infinite alternate;
   }
-  #spaceOverlay {
+  @keyframes videoGlow {
+    0% { box-shadow: 0 0 20px #4d79ff, 0 0 40px #4d79ff, 0 0 60px #4d79ff, 0 0 80px #4d79ff; }
+    100% { box-shadow: 0 0 40px #ff4d4d, 0 0 80px #ff4d4d, 0 0 120px #ff4d4d, 0 0 160px #ff4d4d; }
+  }
+  .jokerLaugh {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
+    font-size: 24px;
+    color: #ff00ff;
+    text-shadow: 0 0 10px #ff00ff;
+    opacity: 0;
+    animation: laugh 5s infinite;
+  }
+  @keyframes laugh {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.5); }
   }
 </style>
 </head>
 <body>
-  <div id="container">
-    <iframe id="videoPlayer" src="https://www.youtube.com/embed/KOrXKiSy8ZY?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    <canvas id="spaceOverlay"></canvas>
+  <div id="carnivalContainer">
+    <div id="batmanFigure"></div>
+    <iframe id="videoPlayer" src="https://www.youtube.com/embed/KOrXKiSy8ZY?autoplay=1&mute=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
   </div>
 
   <script>
+    const carnivalContainer = document.getElementById('carnivalContainer');
+    const batmanFigure = document.getElementById('batmanFigure');
     const videoPlayer = document.getElementById('videoPlayer');
-    const spaceOverlay = document.getElementById('spaceOverlay');
-    const ctx = spaceOverlay.getContext('2d');
-
-    let smileys = [];
-    let currentColor = '#ffffff';
-
-    spaceOverlay.width = window.innerWidth;
-    spaceOverlay.height = window.innerHeight;
-
-    function createSmileys() {
-      for (let i = 0; i < 50; i++) {
-        smileys.push({
-          x: Math.random() * spaceOverlay.width,
-          y: Math.random() * spaceOverlay.height,
-          size: Math.random() * 20 + 10,
-          speed: Math.random() * 3 + 1,
-          isEvil: Math.random() < 0.3,
-          color: Math.random() < 0.2 ? '#ff0000' : currentColor,
-          trail: [],
-          aura: Math.random() * 20 + 10
-        });
-      }
+    
+    function getRandomPosition(element) {
+      const x = Math.random() * (window.innerWidth - element.offsetWidth);
+      const y = Math.random() * (window.innerHeight - element.offsetHeight);
+      return { x, y };
     }
 
-    function drawSmiley(x, y, size, color, isEvil, aura) {
-      // Draw aura
-      const gradient = ctx.createRadialGradient(x, y, size/2, x, y, size/2 + aura);
-      gradient.addColorStop(0, color);
-      gradient.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(x, y, size/2 + aura, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Draw smiley
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(x, y, size / 2, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = 'black';
-      ctx.beginPath();
-      ctx.arc(x - size / 5, y - size / 10, size / 10, 0, Math.PI * 2);
-      ctx.arc(x + size / 5, y - size / 10, size / 10, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.beginPath();
-      if (isEvil) {
-        ctx.moveTo(x - size / 3, y + size / 5);
-        ctx.quadraticCurveTo(x, y + size / 2, x + size / 3, y + size / 5);
-        ctx.quadraticCurveTo(x, y + size / 3, x - size / 3, y + size / 5);
-      } else {
-        ctx.arc(x, y, size / 3, 0, Math.PI);
-      }
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = size / 20;
-      ctx.stroke();
+    function moveElement(element) {
+      const { x, y } = getRandomPosition(element);
+      element.style.left = `${x}px`;
+      element.style.top = `${y}px`;
+      element.style.transform = `rotate(${Math.random() * 360}deg)`;
     }
 
-    function drawSmileys() {
-      ctx.clearRect(0, 0, spaceOverlay.width, spaceOverlay.height);
-
-      smileys.forEach(smiley => {
-        // Draw trail
-        ctx.beginPath();
-        ctx.moveTo(smiley.x, smiley.y);
-        for (let i = 0; i < smiley.trail.length; i++) {
-          const point = smiley.trail[i];
-          ctx.lineTo(point.x, point.y);
-        }
-        ctx.strokeStyle = smiley.color;
-        ctx.lineWidth = 4;
-        ctx.stroke();
-
-        drawSmiley(smiley.x, smiley.y, smiley.size, smiley.color, smiley.isEvil, smiley.aura);
-        
-        // Update trail
-        smiley.trail.unshift({ x: smiley.x, y: smiley.y });
-        if (smiley.trail.length > 20) {
-          smiley.trail.pop();
-        }
-
-        smiley.y += smiley.speed;
-        if (smiley.y > spaceOverlay.height + smiley.size) {
-          smiley.y = -smiley.size;
-          smiley.x = Math.random() * spaceOverlay.width;
-          smiley.isEvil = Math.random() < 0.3;
-          smiley.color = Math.random() < 0.2 ? '#ff0000' : currentColor;
-          smiley.trail = [];
-          smiley.aura = Math.random() * 20 + 10;
-        }
-      });
+    function carnivalMode() {
+      moveElement(batmanFigure);
+      moveElement(videoPlayer);
+      setTimeout(carnivalMode, 1000 + Math.random() * 2000);
     }
 
-    function changeColor() {
-      currentColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-      videoPlayer.style.filter = `hue-rotate(${Math.random() * 360}deg)`;
-      setTimeout(changeColor, Math.random() * 2000 + 1000);
+    function pulseVideo() {
+      const scale = 1 + Math.sin(Date.now() * 0.003) * 0.1;
+      videoPlayer.style.transform += ` scale(${scale})`;
+      requestAnimationFrame(pulseVideo);
     }
 
-    function animate() {
-      drawSmileys();
-      requestAnimationFrame(animate);
+    function createJokerLaugh() {
+      const laugh = document.createElement('div');
+      laugh.className = 'jokerLaugh';
+      laugh.textContent = 'HA HA HA!';
+      laugh.style.left = `${Math.random() * window.innerWidth}px`;
+      laugh.style.top = `${Math.random() * window.innerHeight}px`;
+      carnivalContainer.appendChild(laugh);
+      setTimeout(() => carnivalContainer.removeChild(laugh), 5000);
     }
 
-    window.addEventListener('resize', () => {
-      spaceOverlay.width = window.innerWidth;
-      spaceOverlay.height = window.innerHeight;
-      smileys = [];
-      createSmileys();
+    carnivalMode();
+    pulseVideo();
+    setInterval(createJokerLaugh, 3000);
+
+    document.addEventListener('click', () => {
+      const audio = new Audio('https://gotham-city-chaos.com/carnival-sound.mp3');
+      audio.play();
+      carnivalContainer.style.animation = 'flash 0.1s 3';
+      setTimeout(() => carnivalContainer.style.animation = 'none', 300);
     });
-
-    createSmileys();
-    animate();
-    changeColor();
   </script>
 </body>
 </html>
