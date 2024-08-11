@@ -1,36 +1,81 @@
-html>
+<html>
 <head>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
+        body {
+            background-color: crimson; /* A vivid red to capture attention */
+            height: 100vh;
             overflow: hidden;
+            margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: transparent;
         }
-        .video-container {
-            width: 80vw;
-            height: 45vw; /* 16:9 aspect ratio */
-            border: 10px solid transparent;
-            border-image: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3) 1;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-        }
-        iframe {
+        
+        .matrix-rain {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            border: none;
+            overflow: hidden;
+        }
+        
+        .matrix-rain canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .video-container {
+            position: relative;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
-    <div class="video-container">
-        <!-- YouTube video embedded with a colorful border -->
-        <iframe src="https://www.youtube.com/embed/dLyo2HjEIN0?autoplay=1&controls=1&loop=1&playlist=dLyo2HjEIN0&modestbranding=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div class="matrix-rain">
+        <canvas id="canvas"></canvas>
     </div>
+    <div class="video-container">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/Nsso_cjkYW0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+
+        const drops = [];
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1; 
+        }
+
+        function draw() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; // Slight black to create trail effect
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#0F0"; // Green color for letters
+            ctx.font = fontSize + "px arial";
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+
+                drops[i]++;
+            }
+        }
+
+        setInterval(draw, 33);
+    </script>
 </body>
 </html>
-
-<!-- The border now has a vibrant rainbow gradient effect to add some flair. Enjoy the video with style! 🌈 -->
