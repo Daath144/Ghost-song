@@ -1,0 +1,167 @@
+<html><head><base href="https://example.com/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Batman's Psychedelic Journey with Aura Smileys</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background-color: #111;
+    font-family: Arial, sans-serif;
+  }
+  #container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  #videoPlayer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 20px #00ffff;
+    filter: hue-rotate(0deg);
+    transition: filter 2s ease-in-out;
+    opacity: 0.7;
+  }
+  #spaceOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div id="container">
+    <iframe id="videoPlayer" src="https://www.youtube.com/embed/KOrXKiSy8ZY?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <canvas id="spaceOverlay"></canvas>
+  </div>
+
+  <script>
+    const videoPlayer = document.getElementById('videoPlayer');
+    const spaceOverlay = document.getElementById('spaceOverlay');
+    const ctx = spaceOverlay.getContext('2d');
+
+    let smileys = [];
+    let currentColor = '#ffffff';
+
+    spaceOverlay.width = window.innerWidth;
+    spaceOverlay.height = window.innerHeight;
+
+    function createSmileys() {
+      for (let i = 0; i < 50; i++) {
+        smileys.push({
+          x: Math.random() * spaceOverlay.width,
+          y: Math.random() * spaceOverlay.height,
+          size: Math.random() * 20 + 10,
+          speed: Math.random() * 3 + 1,
+          isEvil: Math.random() < 0.3,
+          color: Math.random() < 0.2 ? '#ff0000' : currentColor,
+          trail: [],
+          aura: Math.random() * 20 + 10
+        });
+      }
+    }
+
+    function drawSmiley(x, y, size, color, isEvil, aura) {
+      // Draw aura
+      const gradient = ctx.createRadialGradient(x, y, size/2, x, y, size/2 + aura);
+      gradient.addColorStop(0, color);
+      gradient.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(x, y, size/2 + aura, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw smiley
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = 'black';
+      ctx.beginPath();
+      ctx.arc(x - size / 5, y - size / 10, size / 10, 0, Math.PI * 2);
+      ctx.arc(x + size / 5, y - size / 10, size / 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      if (isEvil) {
+        ctx.moveTo(x - size / 3, y + size / 5);
+        ctx.quadraticCurveTo(x, y + size / 2, x + size / 3, y + size / 5);
+        ctx.quadraticCurveTo(x, y + size / 3, x - size / 3, y + size / 5);
+      } else {
+        ctx.arc(x, y, size / 3, 0, Math.PI);
+      }
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = size / 20;
+      ctx.stroke();
+    }
+
+    function drawSmileys() {
+      ctx.clearRect(0, 0, spaceOverlay.width, spaceOverlay.height);
+
+      smileys.forEach(smiley => {
+        // Draw trail
+        ctx.beginPath();
+        ctx.moveTo(smiley.x, smiley.y);
+        for (let i = 0; i < smiley.trail.length; i++) {
+          const point = smiley.trail[i];
+          ctx.lineTo(point.x, point.y);
+        }
+        ctx.strokeStyle = smiley.color;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        drawSmiley(smiley.x, smiley.y, smiley.size, smiley.color, smiley.isEvil, smiley.aura);
+        
+        // Update trail
+        smiley.trail.unshift({ x: smiley.x, y: smiley.y });
+        if (smiley.trail.length > 20) {
+          smiley.trail.pop();
+        }
+
+        smiley.y += smiley.speed;
+        if (smiley.y > spaceOverlay.height + smiley.size) {
+          smiley.y = -smiley.size;
+          smiley.x = Math.random() * spaceOverlay.width;
+          smiley.isEvil = Math.random() < 0.3;
+          smiley.color = Math.random() < 0.2 ? '#ff0000' : currentColor;
+          smiley.trail = [];
+          smiley.aura = Math.random() * 20 + 10;
+        }
+      });
+    }
+
+    function changeColor() {
+      currentColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+      videoPlayer.style.filter = `hue-rotate(${Math.random() * 360}deg)`;
+      setTimeout(changeColor, Math.random() * 2000 + 1000);
+    }
+
+    function animate() {
+      drawSmileys();
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', () => {
+      spaceOverlay.width = window.innerWidth;
+      spaceOverlay.height = window.innerHeight;
+      smileys = [];
+      createSmileys();
+    });
+
+    createSmileys();
+    animate();
+    changeColor();
+  </script>
+</body>
+</html>
